@@ -283,7 +283,12 @@
       },
       getK2Gb(bs){
           bs = bs / 1024 /1024 /1024;
-          return Math.ceil(bs.toFixed(2)) + 'GB';
+          if(bs>=1){
+              return Math.ceil(bs.toFixed(2)) + 'GB';
+          }else{
+              bs = bs * 1024;
+              return Math.ceil(bs.toFixed(2)) + 'MB'; 
+          }
       },
       listTipsMouseenter(obj,strs,tipsNum=1){
           this.layerIndex = layer.tips(strs, '#'+obj,{tips: [tipsNum, 'rgb(0 0 0 / 85%)'],time:0});
