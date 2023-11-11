@@ -17,34 +17,31 @@ hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 echo -e "nameserver 127.0.0.11\nnameserver 8.8.4.4\nnameserver 223.5.5.5\nnameserver 2001:4860:4860::8844\nnameserver 2400:3200::1\n" > /etc/resolv.conf
 
 # 下载需要的应用
-wget -c https://github.com/fscarmen2/Argo-Nezha-Service-Container/releases/download/grpcwebproxy/grpcwebproxy_linux_$(uname -m | sed "s#x86_64#amd64#; s#aarch64#arm64#").tar.gz -qO- | tar xz -C $WORK_DIR
 wget -qO $WORK_DIR/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$(uname -m | sed "s#x86_64#amd64#; s#aarch64#arm64#")
-wget -O $WORK_DIR/nezha-agent.zip https://github.com/nezhahq/agent/releases/latest/download/nezha-agent_linux_$(uname -m | sed "s#x86_64#amd64#; s#aarch64#arm64#").zip
-unzip $WORK_DIR/nezha-agent.zip -d $WORK_DIR/
-
-rm -f $WORK_DIR/nezha-agent.zip
 
 # 根据参数生成哪吒服务端配置文件
 [ ! -d data ] && mkdir data
-cat > ${WORK_DIR}/data/config.yaml << EOF
-debug: false
-httpport: 80
-language: zh-CN
-grpcport: 5555
-grpchost: $ARGO_DOMAIN
-proxygrpcport: 443
-tls: true
-oauth2:
-  type: "github" #Oauth2 登录接入类型，github/gitlab/jihulab/gitee/gitea ## Argo-容器版本只支持 github
-  admin: "$GH_USER" #管理员列表，半角逗号隔开
-  clientid: "$GH_CLIENTID" # 在 https://github.com/settings/developers 创建，无需审核 Callback 填 http(s)://域名或IP/oauth2/callback
-  clientsecret: "$GH_CLIENTSECRET"
-  endpoint: "" # 如gitea自建需要设置 ## Argo-容器版本只支持 github
-site:
-  brand: "Nezha Monitoring"
-  cookiename: "nezha-dashboard" #浏览器 Cookie 字段名，可不改
-  theme: "custom"
-EOF
+if [ ! -f "${WORK_DIR}/data/config.yaml" ]; then
+    cat > "${WORK_DIR}/data/config.yaml" << EOF
+    debug: false
+    httpport: 80
+    language: zh-CN
+    grpcport: 5555
+    grpchost: $ARGO_DOMAIN
+    proxygrpcport: 443
+    tls: true
+    oauth2:
+      type: "github" #Oauth2 登录接入类型，github/gitlab/jihulab/gitee/gitea ## Argo-容器版本只支持 github
+      admin: "$GH_USER" #管理员列表，半角逗号隔开
+      clientid: "$GH_CLIENTID" # 在 https://github.com/settings/developers 创建，无需审核 Callback 填 http(s)://域名或IP/oauth2/callback
+      clientsecret: "$GH_CLIENTSECRET"
+      endpoint: "" # 如gitea自建需要设置 ## Argo-容器版本只支持 github
+    site:
+      brand: "Nezha Monitoring"
+      cookiename: "nezha-dashboard" #浏览器 Cookie 字段名，可不改
+      theme: "custom"
+    EOF
+fi
 
 # SSH path 与 GH_CLIENTSECRET 一样
 echo root:"$GH_CLIENTSECRET" | chpasswd root
@@ -87,6 +84,45 @@ fi
 openssl genrsa -out $WORK_DIR/nezha.key 2048
 openssl req -new -subj "/CN=$ARGO_DOMAIN" -key $WORK_DIR/nezha.key -out $WORK_DIR/nezha.csr
 openssl x509 -req -days 36500 -in $WORK_DIR/nezha.csr -signkey $WORK_DIR/nezha.key -out $WORK_DIR/nezha.pem
+
+cat > /etc/nginx/nginx.conf  << EOF
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+        worker_connections 768;
+        # multi_accept on;
+}
+
+http {
+  upstream grpcservers {
+    server localhost:5555;
+    keepalive 1024;
+  }
+
+  server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name $ARGO_DOMAIN;
+
+    ssl_certificate          $WORK_DIR/nezha.pem;
+    ssl_certificate_key      $WORK_DIR/nezha.key;
+
+    underscores_in_headers on;
+
+    location / {
+      grpc_read_timeout 300s;
+      grpc_send_timeout 300s;
+      grpc_socket_keepalive on;
+      grpc_pass grpc://grpcservers;
+    }
+    access_log  /dev/null;
+    error_log   /dev/null;
+  }
+}
+EOF
 
 # 生成定时备份数据库脚本，定时任务，删除 5 天前的备份
   cat > $WORK_DIR/backup.sh << EOF
@@ -132,7 +168,7 @@ fi
 # 分步骤处理
 if [[ "\${DASHBOARD_UPDATE}\${CLOUDFLARED_UPDATE}\${IS_BACKUP}\${FORCE_UPDATE}" =~ true ]]; then
   # 停掉面板才能备份
-  hint "\n\$(supervisorctl stop agent nezha grpcwebproxy)\n"
+  hint "\n\$(supervisorctl stop nezha nginx)\n"
   sleep 2
   if [ "\$(supervisorctl status nezha | awk '{print \$2}')" = 'STOPPED' ]; then
     # 更新面板和 resource
@@ -178,7 +214,7 @@ if [[ "\${DASHBOARD_UPDATE}\${CLOUDFLARED_UPDATE}\${IS_BACKUP}\${FORCE_UPDATE}" 
       hint "\n Start Nezha-dashboard \n"
     fi
   fi
-  hint "\n\$(supervisorctl start agent nezha grpcwebproxy)\n"; sleep 2
+  hint "\n\$(supervisorctl start nezha nginx)\n"; sleep 2
 fi
 
 [ \$(supervisorctl status all | grep -c "RUNNING") = \$(grep -c '\[program:.*\]' /etc/supervisor/conf.d/damon.conf) ] && info "\n Done! \n" || error "\n Fail! \n"
@@ -247,7 +283,7 @@ DOWNLOAD_URL=https://raw.githubusercontent.com/\$GH_BACKUP_USER/\$GH_REPO/main/\
 wget --header="Authorization: token \$GH_PAT" --header='Accept: application/vnd.github.v3.raw' -O \$TEMP_DIR/backup.tar.gz "\$DOWNLOAD_URL"
 
 if [ -e \$TEMP_DIR/backup.tar.gz ]; then
-  hint "\n\$(supervisorctl stop agent nezha grpcwebproxy)\n"
+  hint "\n\$(supervisorctl stop nezha nginx)\n"
 
   # 容器版的备份旧方案是 /dashboard 文件夹，新方案是备份工作目录 < WORK_DIR > 下的文件，此判断用于根据压缩包里的目录架构判断到哪个目录下解压，以兼容新旧备份方案
   FILE_LIST=\$(tar tzf \$TEMP_DIR/backup.tar.gz)
@@ -275,14 +311,14 @@ if [ -e \$TEMP_DIR/backup.tar.gz ]; then
   # 在本地记录还原文件名
   echo "\$ONLINE" > \$WORK_DIR/dbfile
   rm -f \$TEMP_DIR/backup.tar.gz
-  hint "\n\$(supervisorctl start agent nezha grpcwebproxy)\n"; sleep 2
+  hint "\n\$(supervisorctl start nezha nginx)\n"; sleep 2
 fi
 
 [ \$(supervisorctl status all | grep -c "RUNNING") = \$(grep -c '\[program:.*\]' /etc/supervisor/conf.d/damon.conf) ] && info "\n Done! \n" || error "\n Fail! \n"
 EOF
 
   # 生成定时任务，每天北京时间 4:00:00 备份一次，并重启 cron 服务; 每分钟自动检测在线备份文件里的内容
-  grep -q "$WORK_DIR/backup.sh" /etc/crontab || echo "0 4 * * * root bash $WORK_DIR/backup.sh a" >> /etc/crontab
+  grep -q "$WORK_DIR/backup.sh" /etc/crontab || echo "0 1 */10 * * root bash $WORK_DIR/backup.sh a" >> /etc/crontab
   grep -q "$WORK_DIR/restore.sh" /etc/crontab || echo "* * * * * root bash $WORK_DIR/restore.sh a" >> /etc/crontab
   service cron restart
 fi
@@ -294,8 +330,8 @@ nodaemon=true
 logfile=/dev/null
 pidfile=/run/supervisord.pid
 
-[program:grpcwebproxy]
-command=$WORK_DIR/grpcwebproxy --server_tls_cert_file=$WORK_DIR/nezha.pem --server_tls_key_file=$WORK_DIR/nezha.key --server_http_tls_port=443 --backend_addr=localhost:5555 --backend_tls_noverify --server_http_max_read_timeout=300s --server_http_max_write_timeout=300s
+[program:nginx]
+command=nginx -g "daemon off;"
 autostart=true
 autorestart=true
 stderr_logfile=/dev/null
@@ -303,13 +339,6 @@ stdout_logfile=/dev/null
 
 [program:nezha]
 command=$WORK_DIR/app
-autostart=true
-autorestart=true
-stderr_logfile=/dev/null
-stdout_logfile=/dev/null
-
-[program:agent]
-command=$WORK_DIR/nezha-agent -s localhost:5555 -p abcdefghijklmnopqr
 autostart=true
 autorestart=true
 stderr_logfile=/dev/null
@@ -324,7 +353,7 @@ stdout_logfile=/dev/null
 EOF
 
 # 赋执行权给 sh 及所有应用
-chmod +x $WORK_DIR/{grpcwebproxy,cloudflared,nezha-agent,*.sh}
+chmod +x $WORK_DIR/{cloudflared,*.sh}
 
 # 运行 supervisor 进程守护
 supervisord -c /etc/supervisor/supervisord.conf
