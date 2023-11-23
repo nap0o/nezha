@@ -13,6 +13,9 @@ i.icon {
     color:#000;
     width:1.2em !important;
 }
+i.fi {
+    width:1.0em;
+}
 body {
     content:" " !important;
     background:fixed !important;
