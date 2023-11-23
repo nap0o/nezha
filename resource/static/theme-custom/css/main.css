@@ -14,7 +14,8 @@ i.icon {
     width:1.2em !important;
 }
 i.fi {
-    width:1.0em;
+    width:0.9em;
+    margin:0px 6px 0px 2px;
 }
 body {
     content:" " !important;
