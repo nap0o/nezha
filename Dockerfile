@@ -7,7 +7,7 @@ WORKDIR /dashboard
 COPY entrypoint.sh /dashboard/
 COPY sqlite.db /dashboard/data/
 COPY resource/template/theme-custom/* /dashboard/resource/template/theme-custom/
-COPY resource/static/theme-custom/* /dashboard/resource/static/theme-custom/
+COPY resource/static/theme-custom/css/* /dashboard/resource/static/theme-custom/css/
 
 RUN apt-get update &&\
     apt-get -y install openssh-server wget iproute2 vim git cron unzip supervisor systemctl &&\
