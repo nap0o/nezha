@@ -271,6 +271,12 @@ if [ -e \$TEMP_DIR/backup.tar.gz ]; then
   tar xzvf \$TEMP_DIR/backup.tar.gz -C \$TEMP_DIR \${CUSTOM_FULL_PATH[@]} \${FILE_PATH}data
   echo -e "↑↑↑↑↑↑↑↑↑↑ Restore-file list ↑↑↑↑↑↑↑↑↑↑\n\n"
 
+  # 处理 v0.15.17 之后自定义主题静态链接的路径问题，删除备份文件中 resource 下的非 custom 文件夹及文件
+  [ -d \$TEMP_DIR/resource/static/theme-custom ] && mv -f \$TEMP_DIR/resource/static/theme-custom \$TEMP_DIR/resource/static/custom
+  [ -s \$TEMP_DIR/resource/template/theme-custom/header.html ] && sed -i 's#/static/theme-custom/#/static-custom/#g' \$TEMP_DIR/resource/template/theme-custom/header.html
+  find \$TEMP_DIR/resource ! -path "\$TEMP_DIR/resource/*/*custom*" -type f -delete
+  find \$TEMP_DIR/resource ! -path "\$TEMP_DIR/resource/*/*custom*" -type d -empty -delete
+
   # 还原面板配置的最新信息
   sed -i "s@HTTPPort:.*@\$CONFIG_HTTPPORT@I; s@Language:.*@\$CONFIG_LANGUAGE@I; s@^GRPCPort:.*@\$CONFIG_GRPCPORT@I; s@gGRPCHost:.*@I\$CONFIG_GRPCHOST@I; s@ProxyGRPCPort:.*@\$CONFIG_PROXYGRPCPORT@I; s@Type:.*@\$CONFIG_TYPE@I; s@Admin:.*@\$CONFIG_ADMIN@I; s@ClientID:.*@\$CONFIG_CLIENTID@I; s@ClientSecret:.*@\$CONFIG_CLIENTSECRET@I" \${TEMP_DIR}/\${FILE_PATH}data/config.yaml
 
