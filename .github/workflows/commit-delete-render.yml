@@ -1,0 +1,42 @@
+name: Delete Commit on render
+
+on:
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  Redeploy:
+    name: Delete Commit on render
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        with:
+          repository: ${{ secrets.REPOSITORY_GITHUB }}  # replace this with your own repository such as >> owner/repo
+          older-than-seconds: 59          # remove all workflow runs older than 1 day >> 24*60*60=86400
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Delete Commit
+        run: |
+            git checkout --orphan tmp_work
+            git branch -d render
+            echo "DATE=${DATE}" >> $GITHUB_ENV
+
+      - name: Upload to repository
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit_message: Auto commit by Github Actions, ${{ env.DATE }}
+          create_branch: true
+          branch: render
+          push_options: --force
+
+  
