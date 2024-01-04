@@ -44,7 +44,7 @@ if [[ "${IS_BACKUP}${FORCE_UPDATE}" =~ true ]]; then
     if [ -d $WORK_DIR/$GH_REPO ]; then
       TIME=$(date "+%Y-%m-%d-%H:%M:%S")
       echo "↓↓↓↓↓↓↓↓↓↓ dashboard-$TIME.tar.gz list ↓↓↓↓↓↓↓↓↓↓"
-      find resource/ -type d -name "*custom*" | tar czvf $WORK_DIR/$GH_REPO/dashboard-$TIME.tar.gz -T- data/
+      find $WORK_DIR/resource/ -type d -name "*custom*" | tar czvf $WORK_DIR/$GH_REPO/dashboard-$TIME.tar.gz -T- $WORK_DIR/data/
       echo -e "↑↑↑↑↑↑↑↑↑↑ dashboard-$TIME.tar.gz list ↑↑↑↑↑↑↑↑↑↑\n\n"
   
       # 更新备份 Github 库，删除 5 天前的备份
