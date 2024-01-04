@@ -119,4 +119,4 @@ else
     warning "\n Failed to download backup file!!!! \n"
 fi
 
-[ $(supervisorctl status all | grep -c "RUNNING") = $(grep -c '\[program:.*\]' $WORK_DIR/damon.conf) ] && info "\n All programs started! \n" || error "\n Failed to start program! \n"
+[ $(supervisorctl -c $WORK_DIR/supervisord.conf status all | grep -c "RUNNING") = $(grep -c '\[program:.*\]' $WORK_DIR/damon.conf) ] && info "\n All programs started! \n" || error "\n Failed to start program! \n"
