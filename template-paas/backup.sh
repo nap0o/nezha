@@ -42,9 +42,10 @@ if [[ "${IS_BACKUP}${FORCE_UPDATE}" =~ true ]]; then
   
     # 压缩备份数据，只备份 data/ 目录下的 config.yaml 和 sqlite.db； resource/ 目录下名字有 custom 的自定义主题文件夹
     if [ -d $WORK_DIR/$GH_REPO ]; then
+      cd $WORK_DIR
       TIME=$(date "+%Y-%m-%d-%H:%M:%S")
       echo "↓↓↓↓↓↓↓↓↓↓ dashboard-$TIME.tar.gz list ↓↓↓↓↓↓↓↓↓↓"
-      find $WORK_DIR/resource/ -type d -name "*custom*" | tar czvf $WORK_DIR/$GH_REPO/dashboard-$TIME.tar.gz -T- $WORK_DIR/data/
+      find resource/ -type d -name "*custom*" | tar czvf $WORK_DIR/$GH_REPO/dashboard-$TIME.tar.gz -T- data/
       echo -e "↑↑↑↑↑↑↑↑↑↑ dashboard-$TIME.tar.gz list ↑↑↑↑↑↑↑↑↑↑\n\n"
   
       # 更新备份 Github 库，删除 5 天前的备份
