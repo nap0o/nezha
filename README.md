@@ -18,8 +18,8 @@
 ### 5.点击下方工具栏,等待部署成功
 <img width="520" alt="image" src="https://github.com/nap0o/nezha/assets/144927971/16089360-42ec-403d-b918-fea487bdb810">
 
+### 6.在哪吒面板上添加以下任务
+<img width="520" alt="image" src="https://image.spiritfr.eu.org/img/task.jpg">
 
-
-
-
+#### 命令仅需refresh，记得数据备份！
 
