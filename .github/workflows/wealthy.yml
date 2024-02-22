@@ -1,4 +1,4 @@
-name: Create wealthy Release
+name: Build wealthy Release
 
 on:
   workflow_dispatch:
