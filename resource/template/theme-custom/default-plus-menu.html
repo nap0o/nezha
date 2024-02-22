@@ -1,0 +1,45 @@
+{{define "theme-custom/default-plus-menu"}}
+<div class="ui large top fixed menu nb-menu" style="z-index:9999999;">
+    <div class="ui container">
+        <a class="item" href="/?template=default-plus">
+            <img src="/static/logo.svg?v20210804">
+        </a>
+        {{if .IsAdminPage}}
+        <a class='item{{if eq .MatchedPath "/server"}} active{{end}}' href="/server"><i class="server icon"></i>{{tr "Server"}}</a>
+        <a class='item{{if eq .MatchedPath "/monitor"}} active{{end}}' href="/monitor"><i class="rss icon"></i>{{tr "Services"}}</a>
+        <a class='item{{if eq .MatchedPath "/cron"}} active{{end}}' href="/cron"><i class="clock icon"></i>{{tr "Task"}}</a>
+        <a class='item{{if eq .MatchedPath "/notification"}} active{{end}}' href="/notification"><i class="bell icon"></i>{{tr "Notification"}}</a>
+        <a class='item{{if eq .MatchedPath "/setting"}} active{{end}}' href="/setting"><i class="settings icon"></i>{{tr "Settings"}}</a>
+        {{else}}
+        <a class='item{{if eq .MatchedPath "/"}} active{{end}}' href="/?template=default-plus"><i class="home icon"></i>{{tr "Home"}}</a>
+        <a class='item{{if eq .MatchedPath "/service"}} active{{end}}' href="/service?template=default-plus"><i class="rss icon"></i>{{tr "Services"}}</a>
+        <div class="item ui simple dropdown">
+            <div class="text"><i class="bi bi-incognito icon" style="margin-right:3px;"></i>主题<i class="dropdown icon" style="margin-right:0px;"></i></div>
+            <div class="menu">
+                <a class="item" href="/?template=default-plus"><i class="th large icon"></i>Default Plus <i class="check icon"></i></a>
+                <a class="item" href="/"><i class="list icon"></i>Server Status</a>
+            </div>
+        </div>
+        {{end}}
+        {{if .Admin}}
+        <div class="item right item-right ui simple dropdown">
+            <div class="text">
+                <i class="user icon" style="margin-right:3px"></i>{{.Admin.Name}}
+                <i class="dropdown icon"></i>
+            </div>
+            <div class="menu">
+                {{if .IsAdminPage}}
+                <a class="item" href="/"><i class="chart area icon"></i>{{tr "BackToHomepage"}}</a><i class="chart key icon"></i>API Token</a>
+                {{else}}
+                <a class="item" href="/server"><i class="terminal icon"></i>{{tr "AdminPanel"}}</a>
+                {{end}}
+                <a class="item" onclick="showConfirm('{{tr "ConfirmLogout"}}','{{tr "AfterLoggingOutYouHaveToLoginAgain"}}',logout,{{.Admin.ID}})"><i class="logout icon"></i>{{tr "Logout"}}</a>
+            </div>
+        </div>
+        {{else}}
+        <a href="/login/?template=default-plus" class="item right item-right" style="padding-right:1.2rem"><i class="sign-in icon"></i>{{tr "Login"}}</a>
+        {{end}}
+    </div>
+</div>
+{{template "theme-custom/default-plus-confirm" .}}
+{{end}}

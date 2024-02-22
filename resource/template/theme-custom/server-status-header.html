@@ -1,0 +1,34 @@
+{{define "theme-custom/server-status-header"}}
+<!DOCTYPE html>
+<html lang="{{.Conf.Language}}">
+<head>
+    <title>{{ .Title }}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static-custom/server-status/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static-custom/server-status/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static-custom/server-status/css/main.css">
+    <link rel="stylesheet" href="/static-custom/server-status/css/dark.css">
+    <link rel="stylesheet" href="/static-custom/server-status/css/light.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-logos@0.17/assets/font-logos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
+    <link rel="shortcut icon" type="image/png" href="/static/logo.svg" />
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/static-custom/server-status/js/html5shiv.js"></script>
+    <script src="/static-custom/server-status/js/respond.min.js"></script>
+    <![endif]-->
+    {{if ts .CustomCode}}
+    {{.CustomCode|safe}}
+    {{end}}
+    <script src="/static-custom/server-status/js/jquery.min.js"></script>
+    <script src="/static-custom/server-status/js/bootstrap.min.js"></script>
+    <script src="/static-custom/server-status/js/vue.min.js"></script>
+    <script src="/static-custom/server-status/js/echarts.min.js"></script>
+    <script src="/static-custom/server-status/js/mixin.js"></script>
+</head>
+<body>
+{{end}}

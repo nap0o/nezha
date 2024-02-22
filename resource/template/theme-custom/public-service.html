@@ -1,0 +1,7 @@
+{{define "theme-custom/service"}}
+    {{if or (eq .MatchedPath "/?template=default-plus") (eq .MatchedPath "/service?template=default-plus")}}
+        {{template "theme-custom/default-plus-service" .}} 
+    {{else}}
+        {{template "theme-custom/server-status-service" .}}
+    {{end}}
+{{end}}

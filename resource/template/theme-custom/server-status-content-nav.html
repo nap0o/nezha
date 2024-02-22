@@ -1,0 +1,45 @@
+{{define "theme-custom/server-status-content-nav"}}
+<header role="navigation" class="navbar navbar-inverse navbar-fixed-top" style="z-index:99999999;">
+    <div class="container">
+        <div class="navbar-header">
+            <button data-target=".navbar-collapse" data-toggle="collapse" class="navbar-toggle" type="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+                <img src="/static/logo.svg" style="height: 2rem;display: inline-block;">
+                {{.Conf.Site.Brand}}
+            </a>
+        </div>
+        <nav id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/"><i class="home icon"></i>{{tr "Home" }}</a></li>
+                <li><a href="/service"><i class="rss icon"></i>{{tr "Services" }}</a></li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown"><i class="bi bi-incognito" style="position:relative;top:2px;margin-right:3px;font-size:1.2rem;"></i>主题<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/?template=default-plus"><i class="th large icon" style="font-size:1rem"></i>Default Plus</a></li>
+                        <li><a href="/"><i class="list icon"></i>Server Status <i class="check icon"></i></a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {{if .Admin}}
+                <li class="dropdown">
+                    <a data-toggle="dropdown"><i class="user icon"></i>{{.Admin.Name}}<b class="caret"></b></a>
+                    <ul class="dropdown-menu" style="margin-bottom:20px;">
+                        <li><a href="/server"><i class="terminal icon"></i>{{tr "AdminPanel" }}</a></li>
+                        <li><a @click="logOut({{.Admin.ID}})"><i class="logout icon"></i>{{tr "Logout"}}</a></li>
+                    </ul>
+                </li>
+                {{else}}
+                <li><a href="/login"><i class="sign-in icon"></i>{{tr "Login" }}</a></li>
+                {{end}}
+            </ul>
+        </nav>
+    </div>
+</header>
+{{end}}
+

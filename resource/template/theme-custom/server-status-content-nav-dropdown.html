@@ -1,0 +1,94 @@
+{{define "theme-custom/server-status-content-nav-dropdown"}}
+<div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav" style="float:right;">
+        <li><a href="/"><i class="home icon"></i>{{tr "Home" }}</a></li>
+        <li><a href="/service"><i class="rss icon"></i>{{tr "Services" }}</a></li>
+        {{if .Admin}}
+        <li>
+            <div class="ui simple dropdown">
+                <div class="text">
+                    <img class="ui avatar image" src="https://avatars.githubusercontent.com/u/111129132?v=4"> SuperHsiao
+                </div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    
+                    <a class="item" href="/server">
+                        <i class="terminal icon"></i>管理后台
+                    </a>
+                    
+                    <button class="item" onclick="goTop('确定要注销吗？','注销后需重新登录以继续使用',logout, 111129132 )">
+                        <i class="logout icon"></i>注销登录
+                    </button>
+                </div>
+            </div>
+        </li>
+        {{else}}
+        <li><a href="/login"><i class="sign-in icon"></i>{{tr "Login" }}</a></li>
+        {{end}}
+    </ul>
+</div>
+<div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container pl-md-unset">
+            <div class="navbar-header">
+                <button data-target=".navbar-collapse" data-toggle="collapse" class="navbar-toggle" type="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand pl-md-unset">
+                    <img src="/static/logo.svg?v20210804" style="height: 2rem;display: inline-block;">
+                    {{.Conf.Site.Brand}}
+                </a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">{{tr "Home" }}</a></li>
+                    <li><a href="/service">{{tr "Services" }}</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" href="#">{{tr "Menu" }}<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            {{if .Admin}}
+                            <li><a href="/server"><i class="bi bi-custom bi-person-fill" style="font-size:1.2rem"></i>{{tr "AdminPanel" }} ({{.Admin.Name}})</a></li>
+                            {{else}}
+                            <li><a href="/login"><i class="bi bi-custom bi-person-fill" style="font-size:1.2rem"></i>{{tr "Login" }}</a></li>
+                            {{end}}
+                            <li class="divider"></li>
+                            <li>
+                                <a href="#" @click="setSystemTheme">
+                                    <i class="bi bi-custom bi-circle-half" style="font-size:1rem;margin-left:1px;"></i>{{tr "FollowSystem" }}
+                                    <span v-if="isSystemTheme"> <i class="bi bi-custom bi-check2"></i></span>
+                                </a>
+                                <a href="#" @click="setTheme('light', true)">
+                                    <i class="bi bi-custom bi-brightness-high-fill" style="font-size:1.1rem;margin-right:-1px;"></i>{{tr "LightMode" }}
+                                    <span v-if="theme === 'light' && !isSystemTheme"> <i class="bi bi-custom bi-check2"></i></span>
+                                </a>
+                                <a href="#" @click="setTheme('dark', true)">
+                                    <i class="bi bi-custom bi-moon-fill" style="font-size:0.9rem;margin-left:2px"></i>{{tr "DarkMode" }}
+                                    <span v-if="theme === 'dark' && !isSystemTheme"> <i class="bi bi-custom bi-check2"></i></span>
+                                </a>
+                            </li>
+                            <template v-if="page === 'index'">
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="#" @click="toggleView">
+                                        <i class="bi bi-custom bi-view-stacked" style="font-size:0.9rem; margin-left:1px;margin-right:1px;"></i>分组展示
+                                        <span v-if="showGroup"> <i class="bi bi-custom bi-check2"></i></span>
+                                    </a>
+                                    <a href="#" @click="toggleView">
+                                        <i class="bi bi-custom bi-list" style="font-size:1.1rem;"></i>列表展示
+                                        <span v-if="!showGroup"> <i class="bi bi-custom bi-check2"></i></span>
+                                    </a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

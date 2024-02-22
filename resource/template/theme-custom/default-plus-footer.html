@@ -1,0 +1,21 @@
+{{define "theme-custom/default-plus-footer"}}
+<div class="ui inverted vertical footer segment">
+    <div class="ui center aligned is-size-7 container">
+        <b>&copy; <a style="color: white;" href="/?template=default-plus">{{.Conf.Site.Brand}}</a></b> | <small>Theme <a href="https://github.com/fscarmen2/Argo-Nezha-Service-Container" style="color: white;" target="_blank">Wealthy</a></small> | <small>Powered by <a href="https://github.com/naiba/nezha" style="color: white;" target="_blank">{{tr "NezhaMonitoring"}}</a>{{.Version}}</small>
+    </div>
+</div>
+<script src="/static-custom/default-plus/js/jquery.min.js"></script>
+<script src="/static-custom/default-plus/js/semantic.min.js"></script>
+<script src="/static-custom/default-plus/js/semantic-ui-alerts.min.js"></script>
+<script src="/static-custom/default-plus/js/vue.min.js"></script>
+<script src="/static-custom/default-plus/js/echarts.min.js"></script>
+<script src="/static-custom/default-plus/js/mixin.js"></script>
+<script src="/static/main.js"></script>
+<script>
+    (function () {
+        updateLang({{.LANG }});
+    })();
+</script>
+</body>
+</html>
+{{end}}
