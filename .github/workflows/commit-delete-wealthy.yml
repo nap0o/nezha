@@ -15,33 +15,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4.0.0
         with:
-          fetch-depth: 0  # 设置为0以确保获取所有提交历史
+          fetch-depth: 1
 
       - name: Delete workflow runs
         uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
         with:
           repository: ${{ secrets.REPOSITORY_GITHUB }}  # replace this with your own repository such as >> owner/repo
-          older-than-seconds: 59  # 删除所有早于1天的工作流运行 >> 24*60*60=86400
+          older-than-seconds: 59          # remove all workflow runs older than 1 day >> 24*60*60=86400
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
 
-      - name: Delete Branch
+      - name: Delete Commit
         run: |
-            git checkout main  # 切换到主分支或您想要保留提交历史的其他分支
-            git branch -D refs/heads/wealthy  # 强制删除分支wealthy
-            git push origin --delete wealthy  # 删除远程分支wealthy
-            echo "DATE=${{ github.event.created_at }}" >> $GITHUB_ENV  # 记录当前时间作为提交消息的一部分
-
-      - name: Delete Tag
-        run: |
-            git tag -d wealthy  # 删除本地标签wealthy
-            git push origin --delete wealthy  # 删除远程标签wealthy
-            echo "DATE=${{ github.event.created_at }}" >> $GITHUB_ENV  # 记录当前时间作为提交消息的一部分
+            git checkout --orphan tmp_work
+            git branch -d wealthy
+            echo "DATE=${DATE}" >> $GITHUB_ENV
 
       - name: Upload to repository
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           commit_message: Auto commit by Github Actions, ${{ env.DATE }}
-          create_branch: true  # 创建新的分支
-          branch: wealthy  # 新分支名
-          push_options: --force  # 强制推送
+          create_branch: true
+          branch: wealthy
+          push_options: --force
+
+  
