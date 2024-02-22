@@ -1,4 +1,4 @@
-name: Build wealthy Release
+name: Build getwealthy Release
 
 on:
   workflow_dispatch:
@@ -27,12 +27,12 @@ jobs:
       - name: Upload dist
         uses: actions/upload-artifact@main
         with:
-          name: wealthy
+          name: getwealthy
           path: ./
 
       - name: Generate release tag
         id: tag
-        run: echo "::set-output name=release_tag::wealthy"
+        run: echo "::set-output name=release_tag::getwealthy"
 
       - name: Create release
         uses: softprops/action-gh-release@v1
