@@ -1,0 +1,55 @@
+name: git-auto-commit-action
+
+on:
+  workflow_dispatch:
+  #schedule:
+  #  - cron: '0 */3 * * *'
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  Redeploy:
+    name: Auto Commit Action
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        with:
+          repository: ${{ secrets.REPOSITORY_GITHUB }}  # replace this with your own repository such as >> owner/repo
+          older-than-seconds: 59          # remove all workflow runs older than 1 day >> 24*60*60=86400
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Renew README.md
+        run: |
+            DATE=$(date "+%Y/%m/%d %H:%M:%S")
+            echo "${DATE}" > README.md
+            git checkout --orphan tmp_work
+            git branch -d main
+            echo "DATE=${DATE}" >> $GITHUB_ENV
+
+      - name: Upload to repository
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit_message: Auto commit by Github Actions, ${{ env.DATE }}
+          create_branch: true
+          branch: main
+          push_options: --force
+
+      - name: 'Send telegram message'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TG_USER_ID }}
+          token: ${{ secrets.TG_BOT_TOKEN }}
+          message: |
+            ${{ github.repository }} 自动部署
+            ******************************
+            执行时间：${{ env.DATE }}
+  
