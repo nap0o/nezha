@@ -26,7 +26,8 @@ jobs:
           cd musldist
           
           # linux_amd64
-          DASHBOARD_LATEST=$(wget -qO- "https://api.github.com/repos/naiba/nezha/releases/latest" | awk -F '"' '/"tag_name"/{print $4}')
+          # DASHBOARD_LATEST=$(wget -qO- "https://api.github.com/repos/naiba/nezha/releases/latest" | awk -F '"' '/"tag_name"/{print $4}')
+          DASHBOARD_LATEST=$(wget -qO- "https://api.github.com/repos/naiba/nezha/releases/latest" | awk -F '["v]' '/"tag_name"/{print $5}')
           wget -O dashboard.zip https://github.com/naiba/nezha/releases/download/$DASHBOARD_LATEST/dashboard-linux-amd64.zip
           unzip dashboard.zip -d ./
           mv -f ./dashboard-linux-amd64 ./app
