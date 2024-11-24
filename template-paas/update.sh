@@ -14,7 +14,8 @@ hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 # 检查更新面板主程序 app 及 cloudflared
 cd $WORK_DIR
 DASHBOARD_NOW="v$(./app -v)"
-DASHBOARD_LATEST=$(wget -qO- "https://api.github.com/repos/naiba/nezha/releases/latest" | awk -F '"' '/"tag_name"/{print $4}')
+#DASHBOARD_LATEST=$(wget -qO- "https://api.github.com/repos/naiba/nezha/releases/latest" | awk -F '"' '/"tag_name"/{print $4}')
+DASHBOARD_LATEST="v0.20.13"
 [[ "$DASHBOARD_LATEST" =~ ^v([0-9]{1,3}\.){2}[0-9]{1,3}$ && "$DASHBOARD_NOW" != "$DASHBOARD_LATEST" ]] && DASHBOARD_UPDATE=true
 
 CLOUDFLARED_NOW=$(./cloudflared -v | awk '{for (i=0; i<NF; i++) if ($i=="version") {print $(i+1)}}')
