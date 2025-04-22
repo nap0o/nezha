@@ -1,0 +1,52 @@
+name: Build getwealthy Release
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches:
+  #    - main
+  #schedule:
+  #  - cron: 0 16 */7 * *
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: wealthy
+
+      - name: Compress Resource Folder
+        run: zip -r resource.zip resource/
+
+      - name: Upload dist
+        uses: actions/upload-artifact@main
+        with:
+          name: getwealthy
+          path: ./
+
+      - name: Generate release tag
+        id: tag
+        run: echo "::set-output name=release_tag::getwealthy"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          files: resource.zip
+
+      - name: Remove old Releases
+        uses: dev-drprasad/delete-older-releases@v0.1.0
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          keep_latest: 1
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_KEY }}
